@@ -1,2 +1,24 @@
-[{"Person_Name": {"value": "Bradley"}},
-{"Person_Name": {"value": "Baker"}}]
+[
+{
+    "window_len": {
+        "value": 22
+    },
+    "measure": {
+        "value": "data.txt"
+    },
+    "subject_files":{
+        "value": ["subject_01.npy","subject_02.npy"]
+    } 
+},
+{
+    "window_len": {
+        "value": 22
+    },
+    "measure": {
+        "value": "data.txt"
+    },
+    "subject_files":{
+        "value": ["subject_01.npy","subject_02.npy"]
+    } 
+}
+]
