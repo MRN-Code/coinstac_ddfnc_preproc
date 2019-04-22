@@ -13,7 +13,8 @@ from ica.ica import ica1
 DEFAULT_data_file = 'data.txt'
 DEFAULT_num_components = 20
 
-def remote_noop(**kwargs):
+
+def br_remote_noop(**kwargs):
     """
         # Description:
             Nooperation
@@ -30,11 +31,12 @@ def remote_noop(**kwargs):
     """
     computation_output = dict(
         output=dict(
-            computation_phase="remote_noop"
-            ),
+            computation_phase="dfncpp_remote_noop"
+        ),
     )
-    
+
     return json.dumps(computation_output)
+
 
 if __name__ == '__main__':
 
