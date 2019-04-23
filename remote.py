@@ -6,15 +6,14 @@ import os
 import sys
 import json
 import numpy as np
-from ancillary import list_recursive
-from ica.ica import ica1
+from utils import listRecursive
 
 #CONFIG_FILE = 'config.cfg'
 DEFAULT_data_file = 'data.txt'
 DEFAULT_num_components = 20
 
 
-def br_remote_noop(**kwargs):
+def dfncpp_remote_noop(**kwargs):
     """
         # Description:
             Nooperation
@@ -30,10 +29,7 @@ def br_remote_noop(**kwargs):
             remote_init_env
     """
     computation_output = dict(
-        output=dict(
-            computation_phase="dfncpp_remote_noop"
-        ),
-    )
+        output=dict(computation_phase="dfncpp_remote_noop"), )
 
     return json.dumps(computation_output)
 
@@ -44,7 +40,8 @@ if __name__ == '__main__':
     phase_key = list(list_recursive(parsed_args, 'computation_phase'))
 
     if 'local_compute_windows_exemplar' in phase_key:  # FIRST PHASE
-        computation_output = remote_noop(parsed_args, json.loads(computation_output))
+        computation_output = remote_noop(parsed_args,
+                                         json.loads(computation_output))
         sys.stdout.write(computation_output)
     else:
         raise ValueError('Oops')
