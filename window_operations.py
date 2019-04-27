@@ -1,6 +1,6 @@
 import numpy as np
 
-MEASURES = dict(correlation=np.corrcoef,covariance=np.cov)
+MEASURES = dict(correlation=np.corrcoef, covariance=np.cov)
 
 DEFAULT_window = 22
 DEFAULT_transpose = False
@@ -18,9 +18,11 @@ class WindowFactory(object):
               window_len -- length of the sliding window -- DEFAULT: 22
               measure    -- measure to use when computing the windows -- DEFAULT: 'correlation'
     """
+
     def __init__(self, window_len=DEFAULT_window, measure=DEFAULT_measure):
         self.window_len = window_len
-        self.measure = MEASURES[measure] if measure in MEASURES.keys() else MEASURES[DEFAULT_measure]
+        self.measure = MEASURES[measure] if measure in MEASURES.keys(
+        ) else MEASURES[DEFAULT_measure]
 
     def make_windows(self, x):
         """ Using a sliding window, compute connectivity matrices """
@@ -32,7 +34,7 @@ class WindowFactory(object):
             connectivity_mat = self.measure(xWindow.T)
             windows += [connectivity_mat]
             start += 1
-            end = start+window_len
+            end = start+self.window_len
         return windows
 
 
@@ -44,6 +46,7 @@ class ExemplarWindowFactory(WindowFactory):
                  and extracting exempalr timepoints corresponding to maximal
                  variance. 
     """
+
     def make_windows(self, x):
         """find timepoints of maximal variance, and use them to make exemplar windows
             args:
@@ -70,7 +73,7 @@ class ExemplarWindowFactory(WindowFactory):
         """
         asm = self.smooth(a)
         maxima = [asm[i] for i in np.where(np.array(np.r_[1, asm[1:] < asm[:-1]] &
-                                       np.r_[asm[:-1] < asm[1:], 1]))[0]]
+                                                    np.r_[asm[:-1] < asm[1:], 1]))[0]]
         matches = [find_nearest(a, maximum) for maximum in maxima]
         indices = [i for i in range(len(a)) if a[i] in matches]
         if indices:
@@ -81,9 +84,9 @@ class ExemplarWindowFactory(WindowFactory):
         """
         Smooths the window using np hanning
 
-	args:
-		x - the input signal
-		window_len - length of the window
+        args:
+                x - the input signal
+                window_len - length of the window
         """
         if x.ndim != 1:
             raise(ValueError, "smooth only accepts 1 dimension arrays.")
@@ -95,5 +98,3 @@ class ExemplarWindowFactory(WindowFactory):
         w = np.hanning(window_len)
         y = np.convolve(w/w.sum(), s, mode='valid')
         return y
-
-

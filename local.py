@@ -4,12 +4,12 @@ import numpy as np
 from utils import listRecursive
 from .window_operations import WindowFactory, ExemplarWindowFactory
 
-DEFAULT_window_len = 44
+DEFAULT_window_len = 22
 DEFAULT_subject_files = ['subject_01.npy', 'subject_02.npy']
 DEFAULT_fnc_measure = 'correlation'
 
 
-def br_local_compute_windows(**kwargs):
+def br_local_compute_windows(args, **kwargs):
     """
         # Description:
             Compute dFNC windows prior to clustering
@@ -30,10 +30,11 @@ def br_local_compute_windows(**kwargs):
         # NEXT PHASE:
             remote_init_env
     """
-
-    window_len = kwargs['window_len'] if 'window_len' in kwargs.keys(
+    state = args["state"]
+    inputs = args["input"]
+    window_len = kwargs['window_len'] if 'window_len' in inputs.keys(
     ) else DEFAULT_window_len
-    measure = kwargs['measure'] if 'measure' in kwargs.keys(
+    measure = kwargs['measure'] if 'measure' in inputs.keys(
     ) else DEFAULT_fnc_measure
     subject_files = kwargs['subject_files'] if 'subject_files' in kwargs.keys(
     ) else DEFAULT_subject_files
