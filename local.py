@@ -1,7 +1,10 @@
+import os
 import json
 import sys
 import numpy as np
+import nibabel as nib
 from utils import listRecursive
+import utils as ut
 from .window_operations import WindowFactory, ExemplarWindowFactory
 
 DEFAULT_window_len = 22
@@ -36,8 +39,7 @@ def br_local_compute_windows(args, **kwargs):
     ) else DEFAULT_window_len
     measure = kwargs['measure'] if 'measure' in inputs.keys(
     ) else DEFAULT_fnc_measure
-    subject_files = kwargs['subject_files'] if 'subject_files' in kwargs.keys(
-    ) else DEFAULT_subject_files
+    subject_files = inputs['subject_tcs']
     exemplar = kwargs['exemplar'] if 'exemplar' in kwargs.keys() else False
     computation_phase = "dfncpp_local_1"
 
@@ -48,18 +50,33 @@ def br_local_compute_windows(args, **kwargs):
     else:
         window_factory = WindowFactory(window_len=window_len, measure=measure)
     all_windows = []
-    windows_indices = []
+    window_indices = []
     for i, subject_file in enumerate(subject_files):
-        subject_timecourse = np.load(subject_file)
+        subject_timecourse = nib.load(subject_file).get_data()
+        if i == 1:
+            ut.log('Shape of a TC is %s' % (str(subject_timecourse.shape)), state)
         all_windows += window_factory.make_windows(subject_timecourse)
         window_indices += [i for w in all_windows]
+    if exemplar:
+        window_indices_file = os.path.join(state['outputDirectory'], 'exemplar_window_indices.npy')
+        all_windows_file = os.path.join(state['outputDirectory'], 'exemplar_all_windows.npy')
+    else:
+        window_indices_file = os.path.join(state['outputDirectory'], 'window_indices.npy')
+        all_windows_file = os.path.join(state['outputDirectory'], 'all_windows.npy')
 
+    ut.log('Saving window indices', state)
+    np.save(window_indices_file, window_indices)
+    ut.log('Saving all windows', state)
+    np.save(all_windows_file, all_windows)
     computation_output = dict(output=dict(
-        all_windows=all_windows,
-        window_indices=window_indices,
-        computation_phase=computation_phase), )
+        all_windows=all_windows_file,
+        window_indices=window_indices_file,
+        exemplar=exemplar,
+        computation_phase=computation_phase),
+        state=state
+    )
 
-    return json.dumps(computation_output)
+    return computation_output
 
 
 def fuse_output(computation_outputs):

@@ -1,3 +1,4 @@
+from scipy.signal import argrelextrema
 import numpy as np
 
 MEASURES = dict(correlation=np.corrcoef, covariance=np.cov)
@@ -32,6 +33,7 @@ class WindowFactory(object):
         while end <= x.shape[0]:
             xWindow = x[start:end, :]
             connectivity_mat = self.measure(xWindow.T)
+            connectivity_mat = connectivity_mat[np.triu_indices(connectivity_mat.shape[0], k=1)]
             windows += [connectivity_mat]
             start += 1
             end = start+self.window_len
@@ -52,7 +54,7 @@ class ExemplarWindowFactory(WindowFactory):
             args:
                   x - input signal
         """
-        windows = super(ExemplarWindowFactory, self).make_windows()
+        windows = super(ExemplarWindowFactory, self).make_windows(x)
         variance_windows = []
         start = 0
         end = start + self.window_len
@@ -74,13 +76,17 @@ class ExemplarWindowFactory(WindowFactory):
         asm = self.smooth(a)
         maxima = [asm[i] for i in np.where(np.array(np.r_[1, asm[1:] < asm[:-1]] &
                                                     np.r_[asm[:-1] < asm[1:], 1]))[0]]
-        matches = [find_nearest(a, maximum) for maximum in maxima]
+        matches = [self.find_nearest(a, maximum) for maximum in maxima]
         indices = [i for i in range(len(a)) if a[i] in matches]
         if indices:
             return matches, indices
         return matches
 
-    def smooth(self, x, window_len=DEFAULT_window):
+    def find_nearest(self, array, value):
+        idx = (np.abs(array-value)).argmin()
+        return array[idx]
+
+    def smooth(self, x, window_len=4):
         """
         Smooths the window using np hanning
 
@@ -89,10 +95,10 @@ class ExemplarWindowFactory(WindowFactory):
                 window_len - length of the window
         """
         if x.ndim != 1:
-            raise(ValueError, "smooth only accepts 1 dimension arrays.")
+            raise(ValueError("smooth only accepts 1 dimension arrays."))
 
         if x.size < window_len:
-            raise(ValueError, "Input vector needs to be bigger than window size.")
+            raise(ValueError("Input vector needs to be bigger than window size."))
 
         s = np.r_[x[window_len - 1:0:-1], x, x[-2:-window_len - 1:-1]]
         w = np.hanning(window_len)
