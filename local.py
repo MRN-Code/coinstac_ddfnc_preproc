@@ -55,8 +55,9 @@ def br_local_compute_windows(args, **kwargs):
         subject_timecourse = nib.load(subject_file).get_data()
         if i == 1:
             ut.log('Shape of a TC is %s' % (str(subject_timecourse.shape)), state)
-        all_windows += window_factory.make_windows(subject_timecourse)
-        window_indices += [i for w in all_windows]
+        W = window_factory.make_windows(subject_timecourse)
+        window_indices += [i for w in W]
+        all_windows += W
     if exemplar:
         window_indices_file = os.path.join(state['outputDirectory'], 'exemplar_window_indices.npy')
         all_windows_file = os.path.join(state['outputDirectory'], 'exemplar_all_windows.npy')
